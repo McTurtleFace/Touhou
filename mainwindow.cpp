@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // Load the image
-    QPixmap image(":/images/images/koumakyou.jpeg"); // Update the path to your image
+    QPixmap image(":/pictures/fourK.jpg"); // Update the path to your image
     // Resize the image to fit the QLabel
     QPixmap scaledImage = image.scaled(ui->label->size(), Qt::KeepAspectRatio);
     // Set the image to the QLabel

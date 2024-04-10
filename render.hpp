@@ -3,11 +3,12 @@
 
 class Sprite {
 public:
-    Sprite(int height, int width){
-        int red[height][width];
-        int green[height][width];
-        int blue[height][width];
-        int mesh[height][width];
+    Sprite(char * imageFile){
+        QImage image;
+        image.load(imageFile);
+
+        int mesh[image.height()][image.width()];
+
     }
 };
 

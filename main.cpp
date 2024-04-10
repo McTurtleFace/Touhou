@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QLabel>
 #include <QPixmap>
-
+#include <QPainter>
 
 int main(int argc, char *argv[])
 {
@@ -11,12 +11,19 @@ int main(int argc, char *argv[])
     MainWindow window;
 
     QImage testImage;
-    testImage.load(":/images/images/koumakyou.jpeg");
+    testImage.load(":/pictures/fourK.jpg");
+
+    QImage topImage;
+    topImage.load(":/pictures/images/koumakyou.jpeg");
 
     QLabel w;
-    w.setPixmap(QPixmap::fromImage(testImage));
+    w.resize(testImage.size());
 
+    QPainter painter(&testImage);
+    painter.drawImage(0,0,topImage);
+
+    w.setPixmap(QPixmap::fromImage(testImage));
     w.show();
-    window.show();
+    //window.show();
     return a.exec();
 }
