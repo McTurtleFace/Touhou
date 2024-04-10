@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     MainWindow window;
 
     QImage testImage;
-    testImage.load("~/marisa.jpeg");
+    testImage.load(":/images/images/koumakyou.jpeg");
 
     QLabel w;
     w.setPixmap(QPixmap::fromImage(testImage));
