@@ -1,6 +1,7 @@
 #include <QImage>
 #include <QLabel>
 #include <QPainter>
+#include <QThread>
 
 #include "define.h"
 
@@ -10,7 +11,7 @@ public:
     Sprite(const char * imageFile);
 };
 
-class Screen : public QLabel{
+class Screen : public QThread{
 public:
     QImage image;
     QLabel * label;
@@ -21,12 +22,13 @@ public:
     }*/
 };
 
-class Visual {
+class Visual : public QThread{
 public:     // needs to be reverted to protected
     //Visual(Sprite * sprite);
     int velocity[2] = {0};
     int position[2] = {0};
     Sprite * sprite;
+    void loadSprite(Sprite * sprite) {this->sprite = sprite;}
     int renderer(Screen * screen);
 };
 
