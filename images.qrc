@@ -3,5 +3,7 @@
         <file>images/koumakyou.jpeg</file>
         <file alias="fourK.jpg">images/reflection-lights-mountain-lake-captured-parco-ciani-lugano-switzerland.jpg</file>
         <file>images/testing.png</file>
+        <file>images/ufo.png</file>
+        <file>images/reimuBase.png</file>
     </qresource>
 </RCC>
