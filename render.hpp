@@ -61,7 +61,6 @@ public:
 
 class NonPlayerCharacter : public Character {
 public:
-    bool attacking = false;
     unsigned short render(Screen * screen) override;
     using Character::Character;
 };

@@ -1,5 +1,8 @@
 #include "render.hpp"
 
+#include <vector>
+#include <map>
+
 #include <QApplication>
 #include <QLabel>
 #include <QPixmap>
@@ -10,13 +13,34 @@
 #include <QElapsedTimer>
 
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
+void spawnLoop(int currentBoss, qint64 currentTime, vector<Character *> * visuals) {
+    switch(currentBoss){
+    case 1:
+        static u_int32_t currentStage = 0;
+
+        switch(currentTime){
+        case 0 ... 20:
+            if (currentStage == 0) break;
+
+
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    default:
+        // put menu screen stuff here
+    }
+}
+
 int main(int argc, char *argv[])
 {
-    vector<Visual*> visuals;
+    vector<int> myVec;
+    vector<Visual *> visuals;
 
     QApplication a(argc, argv);
 
