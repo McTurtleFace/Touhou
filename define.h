@@ -4,3 +4,6 @@
 
 // Define game tick speed in Hz
 #define TICKS 20
+
+// Define maximum sprites possible on screen
+#define NUMSPRITES 10

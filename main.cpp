@@ -1,7 +1,10 @@
 #include "render.hpp"
+#include "userClasses.hpp"
 
 #include <vector>
 #include <map>
+#include <sys/resource.h>
+#include <stdlib.h>
 
 #include <QApplication>
 #include <QLabel>
@@ -16,16 +19,21 @@
 
 using namespace std;
 
-void spawnLoop(int currentBoss, qint64 currentTime, vector<Character *> * visuals) {
+void spawnLoop(int currentBoss, qint64 currentTime, vector<Visual *> * visuals, Sprite * spriteList[NUMSPRITES]) {
     switch(currentBoss){
     case 1:
         static u_int32_t currentStage = 0;
 
         switch(currentTime){
-        case 0 ... 20:
-            if (currentStage == 0) break;
+        case 0 ... 500000:
+            if (currentStage != 0) break;
 
+            int newVelocity[2] = {0,0};
+            int newPosition[2] = {100,100};
+            Character * newCharacter = new Character(newVelocity,newPosition,spriteList[0]);
+            visuals->emplace_back(newCharacter);
 
+            currentStage = 1;
         }
         break;
     case 2:
@@ -33,40 +41,31 @@ void spawnLoop(int currentBoss, qint64 currentTime, vector<Character *> * visual
     case 3:
         break;
     default:
+        break;
         // put menu screen stuff here
     }
 }
 
-int main(int argc, char *argv[])
-{
-    vector<int> myVec;
+int threadedMain(int argc, char *argv[]){
     vector<Visual *> visuals;
 
     QApplication a(argc, argv);
 
-    QLabel label;
-
-    Sprite spriteTwo(":/pictures/images/testing.jpeg");
+    QLabel label;   // should make this into one step with the constructor
     Screen screen;
     screen.label = &label;
     screen.image.load(":/pictures/fourK.jpg");
 
-    Sprite sprite(":/pictures/images/koumakyou.jpeg");
-    Sprite ufo(":/pictures/images/ufo");
+    Sprite * spriteList[NUMSPRITES];
 
-    int velocityasdf[2] = {0,0};
+    spriteList[0] = new Sprite(":/pictures/images/reimuBase.png");
+
+    int velocityasdf[2] = {0,0};    // pc should have default values for this
     int positionasdf[2] = {300,200};
-    Character visual(velocityasdf,positionasdf,&sprite);
-    visuals.emplace_back(&visual);
-
-    int velocity[2] = {-2,0};
-    int position[2] = {500,0};
-    Character ufoEnemy(velocity,position,&ufo);
-    visuals.emplace_back(&ufoEnemy);
-
-    KeyEventHandler keyEventHandler(&visual);
+    Character playerCharacter(velocityasdf,positionasdf,spriteList[0]);
+    visuals.emplace_back(&playerCharacter);
+    KeyEventHandler keyEventHandler(&playerCharacter);
     a.installEventFilter(&keyEventHandler);
-
 
 
     QTimer frame;
@@ -78,6 +77,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&frame, &QTimer::timeout,[&](){
         int charactersToKill = 0;
+        spawnLoop(1,animationTimer.elapsed(),&visuals,spriteList);
 
         screen.image.load(":/pictures/fourK.jpg");
         for (auto currentVisual = visuals.begin();
@@ -94,4 +94,29 @@ int main(int argc, char *argv[])
     frame.start();
 
     return a.exec();
+}
+
+int main(int argc, char *argv[])
+{
+    // taken from stack overflow
+    const rlim_t kStackSize = 16 * 1024 * 1024;   // min stack size = 16 MB
+    struct rlimit rl;
+    int result;
+
+    result = getrlimit(RLIMIT_STACK, &rl);
+    if (result == 0)
+    {
+        if (rl.rlim_cur < kStackSize)
+        {
+            rl.rlim_cur = kStackSize;
+            result = setrlimit(RLIMIT_STACK, &rl);
+            if (result != 0)
+            {
+                fprintf(stderr, "setrlimit returned result = %d\n", result);
+            }
+        }
+    }
+    // all my code from here on out
+
+    return threadedMain(argc,argv);
 }

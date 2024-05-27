@@ -88,7 +88,7 @@ void Visual::renderer(Screen * screen) {
     renderSemaphore = false;
 }
 
-Character::Character(int velocityP[2], int positionP[2], Sprite * spriteP){
+Character::Character(int velocityP[2], int positionP[2], Sprite * spriteP, Sprite * basicProjectileP, QElapsedTimer * timerP, std::vector<Visual *> * visualsP){
     this->velocity[0] = velocityP[0];
     this->velocity[1] = velocityP[1];
 
@@ -96,6 +96,12 @@ Character::Character(int velocityP[2], int positionP[2], Sprite * spriteP){
     this->position[1] = positionP[1];
 
     this->loadSprite(spriteP);
+    this->basicProjectile = basicProjectileP;
+
+    this->spawnTime = timerP->elapsed();
+    this->timer = timerP;
+
+    this->visuals = visualsP;
 }
 
 unsigned short Visual::render(Screen * screen){
@@ -171,4 +177,8 @@ render return values:
     }
 
     return returnValue;
+}
+
+qint64 NonPlayerCharacter::timeAlive(){
+    return this->timer->elapsed() - spawnTime;
 }

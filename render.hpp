@@ -39,16 +39,20 @@ protected:
     virtual unsigned short collider(Screen * screen);
 };
 
-class Particle : private Visual {
+class Particle : public Visual {
 public:
-    Particle(void ** sprite);
+    Particle(int velocityP[2], int position[2], Sprite * spriteP);
 };
 
 class Character : public Visual {
 public:
+    std::vector<Visual *> * visuals;
+    Sprite * basicProjectile;
     Particle * loadParticle();
-    void shoot();
-    Character(int velocityP[2], int positionP[2], Sprite * spriteP);
+    virtual void shoot();
+    QElapsedTimer * timer;
+    qint64 spawnTime;
+    Character(int velocityP[2], int positionP[2], Sprite * spriteP, Sprite * basicProjectileP, QElapsedTimer * timerP, std::vector<Visual *> * visualsP);
 };
 
 class PlayerCharacter : public Character {
@@ -61,6 +65,7 @@ public:
 
 class NonPlayerCharacter : public Character {
 public:
+    qint64 timeAlive();
     unsigned short render(Screen * screen) override;
     using Character::Character;
 };
