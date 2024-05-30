@@ -42,7 +42,17 @@ public:
 
 class ScreenSpike : public Particle {
 public:
+    bool warningFired = false;
+    int warningTimer = 0;
     unsigned short render(Screen * screen) override;
+    void renderer(Screen * screen) override;
     using Particle::Particle;
 };
 
+class Reitu : public Boss {
+public:
+    uint32_t health = 10;
+    void BinaryRise();
+    void BinarySet();
+    using Boss::Boss;
+};

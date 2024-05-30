@@ -1,5 +1,11 @@
 #include "userClasses.hpp"
 
+#include <chrono>
+#include <thread>
+
+extern bool renderSemaphore;
+
+
 unsigned short Kappa::render(Screen * screen){
     this->renderer(screen);
     if (!(this->timeAlive() % 2000)) this->shoot();
@@ -135,19 +141,48 @@ render return values:
     return returnValue;
 }
 
-void Kappa::shoot(){
-        int newVelocity[2] = {this->velocity[0] + }
-    EnergyBall * newBall = new EnergyBall();
+/*
+shooting should be moved to outside of render loop so that we dont emplace into the vector it is looping through
 
-    this->visuals->emplace_back(newBall);
+*/
+
+void Kappa::shoot(){
+    int newVelocity1[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
+    EnergyBall * newBall1 = new EnergyBall(this->position,newVelocity1,this->basicProjectile);
+
+    this->visuals->emplace_back(newBall1);
+
+    int newVelocity2[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
+    EnergyBall * newBall2 = new EnergyBall(this->position,newVelocity2,this->basicProjectile);
+
+    this->visuals->emplace_back(newBall2);
+
+    int newVelocity3[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
+    EnergyBall * newBall3 = new EnergyBall(this->position,newVelocity3,this->basicProjectile);
+
+    this->visuals->emplace_back(newBall3);
 }
 
 void UFO::shoot(){
-
+    ScreenSpike * screenSpike = new ScreenSpike(this->position,this->velocity,this->basicProjectile);
+    this->visuals->emplace_back(screenSpike);
 }
 
 void NierHack::shoot(){
+    int newVelocity1[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
+    EnergySpike * newSpike1 = new EnergySpike(this->position,newVelocity1,this->basicProjectile);
 
+    this->visuals->emplace_back(newSpike1);
+
+    int newVelocity2[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
+    EnergySpike * newSpike2 = new EnergySpike(this->position,newVelocity2,this->basicProjectile);
+
+    this->visuals->emplace_back(newSpike2);
+
+    int newVelocity3[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
+    EnergySpike * newSpike3 = new EnergySpike(this->position,newVelocity3,this->basicProjectile);
+
+    this->visuals->emplace_back(newSpike3);
 }
 
 unsigned short EnergyBall::render(Screen * screen){
@@ -180,17 +215,47 @@ unsigned short EnergySpike::render(Screen * screen){
     return this->collider(screen);
 }
 
+void ScreenSpike::renderer(Screen * screen){
+
+
+    if (!warningFired && warningTimer<15) {}
+
+    while (renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    renderSemaphore = true;
+    // paint and render
+    QPainter painter(&(screen->image));
+    painter.drawImage(oldPosition[0],oldPosition[1],backgroundSnap);
+    backgroundSnap = screen->image.copy(position[0],position[1],sprite->image.width(),sprite->image.height());
+    backgroundSnap.setAlphaChannel(sprite->invertAlpha());
+    painter.drawImage(position[0],position[1],sprite->image);
+    screen->label->setPixmap(QPixmap::fromImage(screen->image));
+    renderSemaphore = false;
+}
+
 unsigned short ScreenSpike::render(Screen * screen){
     this->renderer(screen);
 
-    for (int i = 0; i < sprite->image.height(); i++){
-        for (int j = 0; j < sprite->image.width(); j++){
-            if (sprite->image.pixelColor(j,i).alpha() == 255){
-                screen->collision[1][j+position[0]][i+position[1]] = true;
+    if (warningFired){
+        for (int i = 0; i < sprite->image.height(); i++){
+            for (int j = 0; j < sprite->image.width(); j++){
+                if (sprite->image.pixelColor(j,i).alpha() == 255){
+                    screen->collision[1][j+position[0]][i+position[1]] = true;
+                }
+                else screen->collision[1][j+position[0]][i+position[1]] = false;
             }
-            else screen->collision[1][j+position[0]][i+position[1]] = false;
         }
     }
 
     return this->collider(screen);
 }
+
+extern int playerLocation[2];
+
+void Reitu::BinaryRise(){
+    // 1
+}
+
+void Reitu::BinarySet(){
+    // 0
+}
+

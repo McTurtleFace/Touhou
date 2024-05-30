@@ -88,7 +88,7 @@ void Visual::renderer(Screen * screen) {
     renderSemaphore = false;
 }
 
-Character::Character(int velocityP[2], int positionP[2], Sprite * spriteP, Sprite * basicProjectileP, QElapsedTimer * timerP, std::vector<Visual *> * visualsP){
+Character::Character(int velocityP[2], int positionP[2], Sprite * spriteP, Sprite * basicProjectileP, QElapsedTimer * timerP, std::vector<Visual *> * newVisuals){
     this->velocity[0] = velocityP[0];
     this->velocity[1] = velocityP[1];
 
@@ -101,7 +101,17 @@ Character::Character(int velocityP[2], int positionP[2], Sprite * spriteP, Sprit
     this->spawnTime = timerP->elapsed();
     this->timer = timerP;
 
-    this->visuals = visualsP;
+    this->visuals = newVisuals;
+}
+
+Particle::Particle(int velocityP[2], int positionP[2], Sprite * spriteP){
+    this->velocity[0] = velocityP[0];
+    this->velocity[1] = velocityP[1];
+
+    this->position[0] = positionP[0];
+    this->position[1] = positionP[1];
+
+    this->loadSprite(spriteP);
 }
 
 unsigned short Visual::render(Screen * screen){
