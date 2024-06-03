@@ -1,3 +1,4 @@
+#pragma once
 #include "render.hpp"
 #include <iostream>
 #include <chrono>

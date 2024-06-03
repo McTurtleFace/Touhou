@@ -1,3 +1,4 @@
+#pragma once
 #include "render.hpp"
 #include "userClasses.hpp"
 
@@ -5,6 +6,7 @@
 #include <map>
 #include <sys/resource.h>
 #include <stdlib.h>
+#include <new>
 
 #include <QApplication>
 #include <QLabel>
@@ -19,7 +21,8 @@
 
 using namespace std;
 
-void spawnLoop(int currentBoss, qint64 currentTime, vector<Visual *> * visuals, Sprite * spriteList[NUMSPRITES]) {
+void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visuals, vector<Visual *> * newVisuals, Sprite * spriteList[NUMSPRITES]) {
+    qint64 currentTime = timer->elapsed();
     switch(currentBoss){
     case 1:
         static u_int32_t currentStage = 0;
@@ -30,8 +33,12 @@ void spawnLoop(int currentBoss, qint64 currentTime, vector<Visual *> * visuals, 
 
             int newVelocity[2] = {0,0};
             int newPosition[2] = {100,100};
-            Character * newCharacter = new Character(newVelocity,newPosition,spriteList[0]);
-            visuals->emplace_back(newCharacter);
+
+            Kappa * kappaRight = new Kappa(newVelocity,newPosition,spriteList[0],spriteList[0],timer,newVisuals);
+            visuals->emplace_back(kappaRight);
+
+            Kappa * kappaLeft = new Kappa(newVelocity,newPosition,spriteList[0],spriteList[0],timer,newVisuals);
+            visuals->emplace_back(kappaLeft);
 
             currentStage = 1;
         }
@@ -48,6 +55,7 @@ void spawnLoop(int currentBoss, qint64 currentTime, vector<Visual *> * visuals, 
 
 int threadedMain(int argc, char *argv[]){
     vector<Visual *> visuals;
+    vector<Visual *> newVisuals;
 
     QApplication a(argc, argv);
 
@@ -60,16 +68,16 @@ int threadedMain(int argc, char *argv[]){
 
     spriteList[0] = new Sprite(":/pictures/images/reimuBase.png");
 
+    QElapsedTimer animationTimer;
     int velocityasdf[2] = {0,0};    // pc should have default values for this
     int positionasdf[2] = {300,200};
-    Character playerCharacter(velocityasdf,positionasdf,spriteList[0]);
+    Character playerCharacter(velocityasdf,positionasdf,spriteList[0],spriteList[0],&animationTimer,&newVisuals);
     visuals.emplace_back(&playerCharacter);
     KeyEventHandler keyEventHandler(&playerCharacter);
     a.installEventFilter(&keyEventHandler);
 
 
     QTimer frame;
-    QElapsedTimer animationTimer;
     animationTimer.start();
     frame.setInterval(1000/30);
 
@@ -77,7 +85,7 @@ int threadedMain(int argc, char *argv[]){
 
     QObject::connect(&frame, &QTimer::timeout,[&](){
         int charactersToKill = 0;
-        spawnLoop(1,animationTimer.elapsed(),&visuals,spriteList);
+        spawnLoop(1,&animationTimer,&visuals,&newVisuals,spriteList);
 
         screen.image.load(":/pictures/fourK.jpg");
         for (auto currentVisual = visuals.begin();

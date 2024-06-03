@@ -1,3 +1,4 @@
+#pragma once
 #include <QImage>
 #include <QLabel>
 #include <QPainter>
@@ -25,7 +26,7 @@ layers: 0-special items, 1-enemy project, 2-friendly project,
     bool collision[6][WIDTH][HEIGHT] = {{{false}}};
 };
 
-class Visual : public QThread{
+class Visual {
 public:
     int velocity[2] = {0};
     int position[2] = {0};
@@ -68,11 +69,6 @@ public:
     qint64 timeAlive();
     unsigned short render(Screen * screen) override;
     using Character::Character;
-};
-
-class Boss : public NonPlayerCharacter {
-public:
-    using NonPlayerCharacter::NonPlayerCharacter;
 };
 
 class KeyEventHandler : public QObject

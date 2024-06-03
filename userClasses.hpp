@@ -1,3 +1,4 @@
+#pragma once
 #include "render.hpp"
 
 class Kappa : public NonPlayerCharacter {
@@ -49,10 +50,18 @@ public:
     using Particle::Particle;
 };
 
-class Reitu : public Boss {
+class ReituRise : public Particle {
+public:
+    void rotate(double rotate);
+};
+
+class Reitu : public NonPlayerCharacter {
 public:
     uint32_t health = 10;
+    Sprite rise;
+    Sprite set;
+    uint32_t riseLeft = 0;
     void BinaryRise();
     void BinarySet();
-    using Boss::Boss;
+
 };

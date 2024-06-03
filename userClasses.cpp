@@ -1,14 +1,16 @@
+#pragma once
 #include "userClasses.hpp"
 
 #include <chrono>
 #include <thread>
+#include <cmath>
 
 extern bool renderSemaphore;
 
 
 unsigned short Kappa::render(Screen * screen){
     this->renderer(screen);
-    if (!(this->timeAlive() % 2000)) this->shoot();
+    if (this->timeAlive() % 2000 <= 5) this->shoot();
     return this->collider(screen);
 }
 
@@ -250,12 +252,27 @@ unsigned short ScreenSpike::render(Screen * screen){
 }
 
 extern int playerLocation[2];
+/*
+void ReituRise::rotate(double rotate) {
+    QImage img("src.jpg");
+    QImage rotatedImg = img.transformed(QMatrix().rotate(90.0));
+    rotatedImg.save("rotated.jpg");
+}
+*/
+
 
 void Reitu::BinaryRise(){
-    // 1
+    if (this->riseLeft  == 0) return;
+
+
+
+    riseLeft--;
+    if (this->riseLeft == 0) riseLeft = 5;
+
+
 }
 
 void Reitu::BinarySet(){
-    // 0
+
 }
 
