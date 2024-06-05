@@ -172,11 +172,7 @@ render return values:
     // detect if colliding
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
-            if (sprite->image.pixelColor(j,i).alpha() == 255 &&
-                (sprite->image.pixelColor(j-1,i).alpha() == 0 ||
-                 sprite->image.pixelColor(j+1,i).alpha() == 0 ||
-                 sprite->image.pixelColor(j,i-1).alpha() == 0 ||
-                 sprite->image.pixelColor(j,i+1).alpha() == 0)) {
+            if (sprite->image.pixelColor(j,i).alpha() == 255) {
                 if (screen->collision[1][j][i]) returnValue = 4;
                 else if (screen->collision[1][j+1][i] ||
                          screen->collision[1][j-1][i] ||
@@ -193,3 +189,4 @@ render return values:
 qint64 NonPlayerCharacter::timeAlive(){
     return this->timer->elapsed() - spawnTime;
 }
+

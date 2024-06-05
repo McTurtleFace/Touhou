@@ -50,7 +50,7 @@ public:
     std::vector<Visual *> * visuals;
     Sprite * basicProjectile;
     Particle * loadParticle();
-    virtual void shoot();
+    virtual void shoot() {}
     QElapsedTimer * timer;
     qint64 spawnTime;
     Character(int velocityP[2], int positionP[2], Sprite * spriteP, Sprite * basicProjectileP, QElapsedTimer * timerP, std::vector<Visual *> * newVisuals);
@@ -67,7 +67,7 @@ public:
 class NonPlayerCharacter : public Character {
 public:
     qint64 timeAlive();
-    unsigned short render(Screen * screen) override;
+    unsigned short render(Screen * screen) override {}
     using Character::Character;
 };
 

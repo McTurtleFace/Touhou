@@ -31,13 +31,15 @@ void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visual
         case 0 ... 500000:
             if (currentStage != 0) break;
 
-            int newVelocity[2] = {0,0};
-            int newPosition[2] = {100,100};
+            int rightVelocity[2] = {2,2};
+            int leftVelocity[2] = {-2,2};
+            int rightPosition[2] = {600,100};
+            int leftPosition[2] = {100,100};
 
-            Kappa * kappaRight = new Kappa(newVelocity,newPosition,spriteList[0],spriteList[0],timer,newVisuals);
+            Kappa * kappaRight = new Kappa(rightVelocity,rightPosition,spriteList[0],spriteList[0],timer,newVisuals);
             visuals->emplace_back(kappaRight);
 
-            Kappa * kappaLeft = new Kappa(newVelocity,newPosition,spriteList[0],spriteList[0],timer,newVisuals);
+            Kappa * kappaLeft = new Kappa(leftVelocity,leftPosition,spriteList[0],spriteList[0],timer,newVisuals);
             visuals->emplace_back(kappaLeft);
 
             currentStage = 1;
@@ -92,6 +94,10 @@ int threadedMain(int argc, char *argv[]){
              currentVisual != visuals.end(); currentVisual++) {
             unsigned short returnValue = (*currentVisual)->render(&screen);
         }
+
+        visuals.insert(visuals.end(), newVisuals.begin(), newVisuals.end());
+        newVisuals.clear();
+
         if (animationTimer.elapsed() > 20*1000) {
             animationTimer.restart();
         }
