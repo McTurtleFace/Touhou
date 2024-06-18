@@ -5,5 +5,11 @@
         <file>images/testing.png</file>
         <file>images/ufo.png</file>
         <file>images/reimuBase.png</file>
+        <file>images/reimu.jpg</file>
+        <file>images/kappa.jpg</file>
+        <file>images/ufo.jpg</file>
+        <file>images/energyBall.jpg</file>
+        <file>images/boundingBox.jpg</file>
+        <file>images/viralHills.jpg</file>
     </qresource>
 </RCC>

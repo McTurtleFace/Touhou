@@ -1,15 +1,13 @@
-#pragma once
 #include "userClasses.hpp"
 
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <cmath>
+#include <QTransform>
 
-extern bool renderSemaphore;
 
-
-unsigned short Kappa::render(Screen * screen){
+void Kappa::render(Screen * screen) {
     static bool standingStill;
 
     this->renderer(screen);
@@ -22,22 +20,22 @@ unsigned short Kappa::render(Screen * screen){
     else standingStill = false;
     if ((int)this->timeAlive() % 2000 <= 50 && standingStill) this->shoot();
 
-    return this->collider(screen);
+    this->renderState = this->collider(screen);
 }
 
-unsigned short UFO::render(Screen * screen){
+void UFO::render(Screen * screen) {
     this->renderer(screen);
     if (!(this->timeAlive() % 2000)) this->shoot();
-    return this->collider(screen);
+    this->renderState = this->collider(screen);
 }
 
-unsigned short NierHack::render(Screen * screen){
+void NierHack::render(Screen * screen){
     this->renderer(screen);
     if (!(this->timeAlive() % 2000)) this->shoot();
-    return this->collider(screen);
+    this->renderState = this->collider(screen);
 }
 
-unsigned short Kappa::collider(Screen * screen){
+unsigned short Kappa::collider(Screen * screen) {
     /*
 ===============================================================
 
@@ -72,7 +70,7 @@ render return values:
     return returnValue;
 }
 
-unsigned short UFO::collider(Screen * screen){
+unsigned short UFO::collider(Screen * screen) {
     /*
 ===============================================================
 
@@ -107,7 +105,7 @@ render return values:
     return returnValue;
 }
 
-unsigned short NierHack::collider(Screen * screen){
+unsigned short NierHack::collider(Screen * screen) {
     /*
 ===============================================================
 
@@ -147,7 +145,7 @@ shooting should be moved to outside of render loop so that we dont emplace into 
 
 */
 
-void Kappa::shoot(){
+void Kappa::shoot() {
     int newVelocity1[2] = {1,2};
     EnergyBall * newBall1 = new EnergyBall(newVelocity1,this->position,this->basicProjectile);
 
@@ -164,12 +162,12 @@ void Kappa::shoot(){
     this->visuals->emplace_back(newBall3);
 }
 
-void UFO::shoot(){
+void UFO::shoot() {
     ScreenSpike * screenSpike = new ScreenSpike(this->position,this->velocity,this->basicProjectile);
     this->visuals->emplace_back(screenSpike);
 }
 
-void NierHack::shoot(){
+void NierHack::shoot() {
     int newVelocity1[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
     EnergySpike * newSpike1 = new EnergySpike(newVelocity1,this->position,this->basicProjectile);
 
@@ -186,9 +184,7 @@ void NierHack::shoot(){
     this->visuals->emplace_back(newSpike3);
 }
 
-unsigned short EnergyBall::render(Screen * screen){
-    this->renderer(screen);
-
+void EnergyBall::render(Screen * screen) {
     for (int i = 0; i < sprite->image.height(); i++){
         for (int j = 0; j < sprite->image.width(); j++){
             if (j+position[0]>0 && j+position[0]<WIDTH &&
@@ -201,12 +197,10 @@ unsigned short EnergyBall::render(Screen * screen){
         }
     }
 
-    return this->collider(screen);
+    this->renderState = this->collider(screen);
 }
 
-unsigned short EnergySpike::render(Screen * screen){
-    this->renderer(screen);
-
+void EnergySpike::render(Screen * screen) {
     for (int i = 0; i < sprite->image.height(); i++){
         for (int j = 0; j < sprite->image.width(); j++){
             if (j+position[0] > 0 && j+position[0] < WIDTH &&
@@ -219,16 +213,21 @@ unsigned short EnergySpike::render(Screen * screen){
         }
     }
 
-    return this->collider(screen);
+    this->renderState = this->collider(screen);
 }
 
-void ScreenSpike::renderer(Screen * screen){
+void EnergySpike::rotate(double rotation){
+    this->rotatedSprite.image = this->sprite->image.transformed(QTransform().rotate(rotation));
+    this->sprite = &(this->rotatedSprite);
+}
+
+void ScreenSpike::renderer(Screen * screen) {
 
 
     if (!warningFired && warningTimer<15) {}
 
-    while (renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    renderSemaphore = true;
+    while (screen->renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    screen->renderSemaphore = true;
     // paint and render
     QPainter painter(&(screen->image));
     painter.drawImage(oldPosition[0],oldPosition[1],backgroundSnap);
@@ -236,12 +235,10 @@ void ScreenSpike::renderer(Screen * screen){
     backgroundSnap.setAlphaChannel(sprite->invertAlpha());
     painter.drawImage(position[0],position[1],sprite->image);
     screen->label->setPixmap(QPixmap::fromImage(screen->image));
-    renderSemaphore = false;
+    screen->renderSemaphore = false;
 }
 
-unsigned short ScreenSpike::render(Screen * screen){
-    this->renderer(screen);
-
+void ScreenSpike::render(Screen * screen) {
     if (warningFired){
         for (int i = 0; i < sprite->image.height(); i++){
             for (int j = 0; j < sprite->image.width(); j++){
@@ -253,7 +250,7 @@ unsigned short ScreenSpike::render(Screen * screen){
         }
     }
 
-    return this->collider(screen);
+    this->renderState = this->collider(screen);
 }
 
 extern int playerLocation[2];
@@ -266,7 +263,7 @@ void ReituRise::rotate(double rotate) {
 */
 
 
-void Reitu::BinaryRise(){
+void Reitu::BinaryRise() {
     if (this->riseLeft  == 0) return;
 
 
@@ -277,7 +274,7 @@ void Reitu::BinaryRise(){
 
 }
 
-void Reitu::BinarySet(){
+void Reitu::BinarySet() {
 
 }
 

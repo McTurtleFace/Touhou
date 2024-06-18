@@ -16,7 +16,11 @@ public:
 };
 
 class Screen : public QThread{
+private:
+    Sprite * boundingBox;
 public:
+    QImage backgroundSnap;
+    bool renderSemaphore = false;
     QImage image;
     QLabel * label;
 /*
@@ -24,24 +28,32 @@ layers: 0-special items, 1-enemy project, 2-friendly project,
         3-enemy char, 4-friendly char, 5-top level
 */
     bool collision[6][WIDTH][HEIGHT] = {{{false}}};
+    void overlayBox();
+    Screen(QLabel * labelP, const char * imageName, const char * boundName);
 };
 
 class Visual {
 public:
+    unsigned short renderState = 0;
     int velocity[2] = {0};
     int position[2] = {0};
-    virtual unsigned short render(Screen * screen);
+    void nonThreadedRender(Screen * screen) { move();renderer(screen);}
+    virtual void render(Screen * screen);
+    virtual ~Visual() {}
 protected:
     int oldPosition[2] = {0};
     QImage backgroundSnap;
     Sprite * sprite;
     void loadSprite(Sprite * sprite) {this->sprite = sprite;}
+    void move();
     virtual void renderer(Screen * screen);
     virtual unsigned short collider(Screen * screen);
 };
 
 class Particle : public Visual {
 public:
+    void render(Screen * screen) override;
+    char * shooter;
     Particle(int velocityP[2], int positionP[2], Sprite * spriteP);
 };
 
@@ -57,24 +69,26 @@ public:
 };
 
 class PlayerCharacter : public Character {
+private:
+    void shoot() override;
 public:
+    bool shooting = false;
     int lives = 3;
-    unsigned short render(Screen * screen) override;
     unsigned short collider(Screen * screen) override;
+    void render(Screen * screen) override;
     using Character::Character;
 };
 
 class NonPlayerCharacter : public Character {
 public:
     qint64 timeAlive();
-    unsigned short render(Screen * screen) override {}
     using Character::Character;
 };
 
 class KeyEventHandler : public QObject
 {
 public:
-    KeyEventHandler(Character* inputVisual) {
+    KeyEventHandler(PlayerCharacter* inputVisual) {
         this->visual = inputVisual;
     }
 
@@ -82,5 +96,5 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    Character* visual;
+    PlayerCharacter* visual;
 };

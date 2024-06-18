@@ -1,11 +1,8 @@
-#pragma once
 #include "render.hpp"
 #include <iostream>
 #include <chrono>
 #include <thread>
 
-
-bool renderSemaphore = false;
 
 Sprite::Sprite(const char * imageFile){
     this->image.load(imageFile);
@@ -51,6 +48,9 @@ bool KeyEventHandler::eventFilter(QObject *obj, QEvent *event) {
             visual->velocity[0] = 0;
             visual->velocity[1] = 2;
         }
+        else if (keyEvent->key() == Qt::Key_Space) {
+            visual->shooting = true;
+        }
     }
 
     return QObject::eventFilter(obj, event);
@@ -72,13 +72,10 @@ QImage Sprite::invertAlpha(){
 }
 
 void Visual::renderer(Screen * screen) {
-    oldPosition[0] = position[0];
-    oldPosition[1] = position[1];
-    position[0] += velocity[0];
-    position[1] += velocity[1];
 
-    while (renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    renderSemaphore = true;
+
+    while (screen->renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    screen->renderSemaphore = true;
     // paint and render
     QPainter painter(&(screen->image));
     painter.drawImage(oldPosition[0],oldPosition[1],backgroundSnap);
@@ -86,7 +83,14 @@ void Visual::renderer(Screen * screen) {
     backgroundSnap.setAlphaChannel(sprite->invertAlpha());
     painter.drawImage(position[0],position[1],sprite->image);
     screen->label->setPixmap(QPixmap::fromImage(screen->image));
-    renderSemaphore = false;
+    screen->renderSemaphore = false;
+}
+
+void Visual::move(){
+    oldPosition[0] = position[0];
+    oldPosition[1] = position[1];
+    position[0] += velocity[0];
+    position[1] += velocity[1];
 }
 
 Character::Character(int velocityP[2], int positionP[2], Sprite * spriteP, Sprite * basicProjectileP, QElapsedTimer * timerP, std::vector<Visual *> * newVisuals){
@@ -115,9 +119,8 @@ Particle::Particle(int velocityP[2], int positionP[2], Sprite * spriteP){
     this->loadSprite(spriteP);
 }
 
-unsigned short Visual::render(Screen * screen){
-    this->renderer(screen);
-    return this->collider(screen);
+void Visual::render(Screen * screen){
+    this->renderState = this->collider(screen);
 }
 
 unsigned short Visual::collider(__attribute__((unused)) Screen * screen){
@@ -130,6 +133,7 @@ render return values:
 2 = graze, if pc give graze points
 3 = power, if pc give power points
 4 = colliding with particle, kill
+5 = player is dead, kill program
 
 ===============================================================
     */
@@ -173,11 +177,13 @@ render return values:
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
-                if (screen->collision[1][j][i]) returnValue = 4;
-                else if (screen->collision[1][j+1][i] ||
-                         screen->collision[1][j-1][i] ||
-                         screen->collision[1][j][i+1] ||
-                         screen->collision[1][j][i-1]) returnValue = 2;
+                if (screen->collision[1][position[0]+j][position[1]+i]) returnValue = 5;
+                else if (screen->collision[1][position[0]+j+1][position[1]+i] ||
+                         screen->collision[1][position[0]+j-1][position[1]+i] ||
+                         screen->collision[1][position[0]+j][position[1]+i+1] ||
+                         screen->collision[1][position[0]+j][position[1]+i-1]) {
+                    returnValue = 2;
+                }
                 else if (screen->collision[0][j][i]) returnValue = 3;
             }
         }
@@ -186,7 +192,74 @@ render return values:
     return returnValue;
 }
 
-qint64 NonPlayerCharacter::timeAlive(){
+
+Screen::Screen(QLabel * labelP,const char * imageName, const char * boundName) {
+    this->label = labelP;
+    this->image.load(imageName);
+    this->boundingBox = new Sprite(boundName);
+
+    for (int i = 0; i<boundingBox->image.height(); i++){
+        for (int j = 0; j<boundingBox->image.width(); j++){
+            if (boundingBox->image.pixelColor(j,i).alpha() == 255) {
+                this->collision[5][j][i] = true;
+            }
+        }
+    }
+}
+
+void Screen::overlayBox() {
+
+    while (renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    renderSemaphore = true;
+    // paint and render
+    QPainter painter(&(image));
+    painter.drawImage(0,0,boundingBox->image);
+    label->setPixmap(QPixmap::fromImage(image));
+    renderSemaphore = false;
+}
+
+qint64 NonPlayerCharacter::timeAlive() {
     return this->timer->elapsed() - spawnTime;
 }
 
+void Particle::render(Screen * screen) {
+    for (int i = 0; i < sprite->image.height(); i++){
+        for (int j = 0; j < sprite->image.width(); j++){
+            if (j+position[0]>0 && j+position[0]<WIDTH &&
+                i+position[1]>0 && i+position[1]<HEIGHT){
+                if (sprite->image.pixelColor(j,i).alpha() == 255){
+                    screen->collision[1][j+position[0]][i+position[1]] = true;
+                }
+                else screen->collision[1][j+position[0]][i+position[1]] = false;
+            }
+        }
+    }
+
+    this->renderState = this->collider(screen);
+}
+
+void PlayerCharacter::shoot() {
+    int newVelocity1[2] = {1,2};
+    Particle * newBall1 = new Particle(newVelocity1,this->position,this->basicProjectile);
+
+    this->visuals->emplace_back(newBall1);
+
+    int newVelocity2[2] = {0,2};
+    Particle * newBall2 = new Particle(newVelocity2,this->position,this->basicProjectile);
+
+    this->visuals->emplace_back(newBall2);
+
+    int newVelocity3[2] = {-1,2};
+    Particle * newBall3 = new Particle(newVelocity3,this->position,this->basicProjectile);
+
+    this->visuals->emplace_back(newBall3);
+}
+
+void PlayerCharacter::render(Screen * screen) {
+    if (shooting) shoot();
+    this->shooting = false;
+    this->velocity[0] = 0;
+    this->velocity[1] = 0;
+
+    this->renderState = this->collider(screen);
+}
