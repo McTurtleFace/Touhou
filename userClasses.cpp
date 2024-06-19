@@ -19,6 +19,7 @@ void Kappa::render(Screen * screen) {
     }
     else standingStill = false;
     if ((int)this->timeAlive() % 2000 <= 50 && standingStill) this->shoot();
+    if ((int)this->timeAlive() > 30000 && standingStill) this->velocity[1] = -3;
 
     this->renderState = this->collider(screen);
 }
@@ -30,8 +31,19 @@ void UFO::render(Screen * screen) {
 }
 
 void NierHack::render(Screen * screen){
+    static bool standingStill;
+
     this->renderer(screen);
-    if (!(this->timeAlive() % 2000)) this->shoot();
+
+    if (this->position[1] > 50) {
+        this->velocity[0] = 0;
+        this->velocity[1] = 0;
+        standingStill = true;
+    }
+    else standingStill = false;
+    if ((int)this->timeAlive() % 2000 <= 50 && standingStill) this->shoot();
+    if ((int)this->timeAlive() > 30000 && standingStill) this->velocity[1] = -3;
+
     this->renderState = this->collider(screen);
 }
 
@@ -62,7 +74,7 @@ render return values:
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
-                if (screen->collision[1][j][i]) returnValue = 4;
+                if (screen->collision[2][j][i]) returnValue = 4;
             }
         }
     }
@@ -97,7 +109,7 @@ render return values:
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
-                if (screen->collision[1][j][i]) returnValue = 4;
+                if (screen->collision[2][j][i]) returnValue = 4;
             }
         }
     }
@@ -132,18 +144,13 @@ render return values:
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
-                if (screen->collision[1][j][i]) returnValue = 4;
+                if (screen->collision[2][j][i]) returnValue = 4;
             }
         }
     }
 
     return returnValue;
 }
-
-/*
-shooting should be moved to outside of render loop so that we dont emplace into the vector it is looping through
-
-*/
 
 void Kappa::shoot() {
     int newVelocity1[2] = {1,2};
@@ -168,20 +175,20 @@ void UFO::shoot() {
 }
 
 void NierHack::shoot() {
-    int newVelocity1[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
-    EnergySpike * newSpike1 = new EnergySpike(newVelocity1,this->position,this->basicProjectile);
+    int newVelocity1[2] = {1,2};
+    EnergyBall * newBall1 = new EnergyBall(newVelocity1,this->position,this->basicProjectile);
 
-    this->visuals->emplace_back(newSpike1);
+    this->visuals->emplace_back(newBall1);
 
-    int newVelocity2[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
-    EnergySpike * newSpike2 = new EnergySpike(newVelocity2,this->position,this->basicProjectile);
+    int newVelocity2[2] = {0,2};
+    EnergyBall * newBall2 = new EnergyBall(newVelocity2,this->position,this->basicProjectile);
 
-    this->visuals->emplace_back(newSpike2);
+    this->visuals->emplace_back(newBall2);
 
-    int newVelocity3[2] = {this->velocity[0] + 0, this->velocity[1] + 2};
-    EnergySpike * newSpike3 = new EnergySpike(newVelocity3,this->position,this->basicProjectile);
+    int newVelocity3[2] = {-1,2};
+    EnergyBall * newBall3 = new EnergyBall(newVelocity3,this->position,this->basicProjectile);
 
-    this->visuals->emplace_back(newSpike3);
+    this->visuals->emplace_back(newBall3);
 }
 
 void EnergyBall::render(Screen * screen) {

@@ -25,12 +25,13 @@ using namespace std;
 
 void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visuals, vector<Visual *> * newVisuals, Sprite * spriteList[NUMSPRITES]) {
     qint64 currentTime = timer->elapsed();
+
     switch(currentBoss){
     case 1:
         static u_int32_t currentStage = 0;
 
         switch(currentTime){
-        case 0 ... 500000:
+        case 0 ... 500: {
             if (currentStage != 0) break;
 
             int rightVelocity[2] = {2,2};
@@ -45,6 +46,25 @@ void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visual
             visuals->emplace_back(kappaLeft);
 
             currentStage = 1;
+            break;
+        }
+        case 30000 ... 40000: {
+            if (currentStage != 1) break;
+
+            int rightVelocity[2] = {0,0};
+            int leftVelocity[2] = {0,0};
+            int rightPosition[2] = {700,160};
+            int leftPosition[2] = {300,160};
+
+            Kappa * hackRight = new Kappa(rightVelocity,rightPosition,spriteList[1],spriteList[2],timer,newVisuals);
+            visuals->emplace_back(hackRight);
+
+            Kappa * hackLeft = new Kappa(leftVelocity,leftPosition,spriteList[1],spriteList[2],timer,newVisuals);
+            visuals->emplace_back(hackLeft);
+
+            currentStage = 2;
+            break;
+        }
         }
         break;
     case 2:
@@ -55,10 +75,6 @@ void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visual
         break;
         // put menu screen stuff here
     }
-}
-
-void threadedRender(Visual * visual, Screen * screen){
-    visual->render(screen);
 }
 
 int threadedMain(int argc, char *argv[]){
@@ -147,10 +163,6 @@ int threadedMain(int argc, char *argv[]){
 
         visuals.insert(visuals.end(), newVisuals.begin(), newVisuals.end());
         newVisuals.clear();
-
-        if (animationTimer.elapsed() > 20*1000) {
-            animationTimer.restart();
-        }
 
         screen.overlayBox();
         screen.label->show();
