@@ -37,7 +37,7 @@ public:
 
 class EnergySpike : public Particle {
 public:
-    Sprite rotatedSprite = NULL;
+    Sprite * rotatedSprite;
     void render(Screen * screen) override;
     void rotate(double rotation);
     using Particle::Particle;
@@ -45,6 +45,7 @@ public:
 
 class ScreenSpike : public Particle {
 public:
+    Sprite * warningSprite;
     bool warningFired = false;
     int warningTimer = 0;
     void render(Screen * screen) override;
@@ -52,18 +53,15 @@ public:
     using Particle::Particle;
 };
 
-class ReituRise : public EnergySpike {
-public:
-    using EnergySpike::EnergySpike;
-};
-
 class Reitu : public NonPlayerCharacter {
+private:
+    void shoot() override;
 public:
     uint32_t health = 10;
-    Sprite rise;
-    Sprite set;
-    uint32_t riseLeft = 0;
+    Sprite * rise;
+    Sprite * set;
     void BinaryRise();
     void BinarySet();
-
+    void render(Screen * screen) override;
+    using NonPlayerCharacter::NonPlayerCharacter;
 };

@@ -23,6 +23,8 @@
 
 using namespace std;
 
+int playerLocation[2];
+
 void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visuals, vector<Visual *> * newVisuals, Sprite * spriteList[NUMSPRITES]) {
     qint64 currentTime = timer->elapsed();
 
@@ -40,29 +42,41 @@ void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visual
             int leftPosition[2] = {100,100};
 
             Kappa * kappaRight = new Kappa(rightVelocity,rightPosition,spriteList[1],spriteList[2],timer,newVisuals);
-            visuals->emplace_back(kappaRight);
+            newVisuals->emplace_back(kappaRight);
 
             Kappa * kappaLeft = new Kappa(leftVelocity,leftPosition,spriteList[1],spriteList[2],timer,newVisuals);
-            visuals->emplace_back(kappaLeft);
+            newVisuals->emplace_back(kappaLeft);
 
             currentStage = 1;
             break;
         }
-        case 30000 ... 40000: {
+        case 6000 ... 7000: {
             if (currentStage != 1) break;
 
-            int rightVelocity[2] = {0,0};
-            int leftVelocity[2] = {0,0};
-            int rightPosition[2] = {700,160};
-            int leftPosition[2] = {300,160};
+            int rightVelocity[2] = {0,2};
+            int leftVelocity[2] = {0,2};
+            int rightPosition[2] = {600,0};
+            int leftPosition[2] = {100,0};
 
-            Kappa * hackRight = new Kappa(rightVelocity,rightPosition,spriteList[1],spriteList[2],timer,newVisuals);
-            visuals->emplace_back(hackRight);
+            NierHack * nierRight = new NierHack(rightVelocity,rightPosition,spriteList[1],spriteList[2],timer,newVisuals);
+            newVisuals->emplace_back(nierRight);
 
-            Kappa * hackLeft = new Kappa(leftVelocity,leftPosition,spriteList[1],spriteList[2],timer,newVisuals);
-            visuals->emplace_back(hackLeft);
+            NierHack * nierLeft = new NierHack(leftVelocity,leftPosition,spriteList[1],spriteList[2],timer,newVisuals);
+            newVisuals->emplace_back(nierLeft);
 
             currentStage = 2;
+            break;
+        }
+        case 10000 ... 12000: {
+            if (currentStage != 2) break;
+
+            int velocity[2] = {0,0};
+            int position[2] = {800,300};
+
+            UFO * centerUFO = new UFO(velocity,position,spriteList[1],spriteList[2],timer,newVisuals);
+            newVisuals->emplace_back(centerUFO);
+
+            currentStage = 3;
             break;
         }
         }
@@ -113,6 +127,9 @@ int threadedMain(int argc, char *argv[]){
     int points = 0, pointMod = 1;
 
     QObject::connect(&frame, &QTimer::timeout,[&](){
+        playerLocation[0] = playerCharacter->position[0];
+        playerLocation[1] = playerCharacter->position[1];
+
         if (stillAlive == false) a.quit();
 
         screen.collision[1][350][350] = true;
