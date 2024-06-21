@@ -35,18 +35,22 @@ bool KeyEventHandler::eventFilter(QObject *obj, QEvent *event) {
         if (keyEvent->key() == Qt::Key_W) {
             visual->velocity[0] = 0;
             visual->velocity[1] = -2;
+            if (visual->position[1] < 10) visual->velocity[1] = 0;
         }
         else if (keyEvent->key() == Qt::Key_D) {
             visual->velocity[0] = 2;
             visual->velocity[1] = 0;
+            if (visual->position[0] > 1010) visual->velocity[0] = 0;
         }
         else if (keyEvent->key() == Qt::Key_A) {
             visual->velocity[0] = -2;
             visual->velocity[1] = 0;
+            if (visual->position[0] < 190) visual->velocity[0] = 0;
         }
         else if (keyEvent->key() == Qt::Key_S) {
             visual->velocity[0] = 0;
             visual->velocity[1] = 2;
+            if (visual->position[1] > 1070) visual->velocity[1] = 0;
         }
         else if (keyEvent->key() == Qt::Key_Space) {
             visual->shooting = true;

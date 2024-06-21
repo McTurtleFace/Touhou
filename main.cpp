@@ -18,6 +18,8 @@
 #include <QObject>
 #include <QKeyEvent>
 #include <QElapsedTimer>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 #include <iostream>
 
@@ -92,6 +94,10 @@ void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visual
 }
 
 int threadedMain(int argc, char *argv[]){
+    QMediaPlayer *music = new QMediaPlayer();
+    music->setSource()
+    music->play();
+
     vector<Visual *> visuals;
     vector<Visual *> newVisuals;
     vector<thread> renderThreads;

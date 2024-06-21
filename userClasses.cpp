@@ -65,7 +65,7 @@ render return values:
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
-                if (screen->collision[2][j][i]) returnValue = 4;
+                if (screen->collision[2][position[0]+j][position[1]+i]) returnValue = 4;
             }
         }
     }
@@ -100,7 +100,7 @@ render return values:
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
-                if (screen->collision[2][j][i]) returnValue = 4;
+                if (screen->collision[2][position[0]+j][position[1]+i]) returnValue = 4;
             }
         }
     }
@@ -135,9 +135,7 @@ render return values:
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
-                if (screen->collision[2][j][i]) {
-
-                    std::cout << "erm" << std::endl;returnValue = 4;}
+                if (screen->collision[2][position[0]+j][position[1]+i]) returnValue = 4;
             }
         }
     }
