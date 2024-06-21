@@ -3,6 +3,17 @@
 #include <chrono>
 #include <thread>
 
+void scoreShow(Screen * screen, int score){
+    while (screen->renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    screen->renderSemaphore = true;
+    // paint and render
+    QPainter painter(&(screen->image));
+    painter.setPen(QPen(Qt::white));
+    painter.drawText(QRect(1300,400,1800,700),QString::number(score));
+    screen->label->setPixmap(QPixmap::fromImage(screen->image));
+    screen->renderSemaphore = false;
+}
+
 
 Sprite::Sprite(const char * imageFile){
     this->image.load(imageFile);
@@ -244,9 +255,9 @@ void Particle::render(Screen * screen) {
             if (j+position[0]>0 && j+position[0]<WIDTH &&
                 i+position[1]>0 && i+position[1]<HEIGHT){
                 if (sprite->image.pixelColor(j,i).alpha() == 255){
-                    screen->collision[2][j+position[0]][i+position[1]] = true;
+                    screen->collision[renderLayer][j+position[0]][i+position[1]] = true;
                 }
-                else screen->collision[2][j+position[0]][i+position[1]] = false;
+                else screen->collision[renderLayer][j+position[0]][i+position[1]] = false;
             }
         }
     }

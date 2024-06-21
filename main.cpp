@@ -18,8 +18,6 @@
 #include <QObject>
 #include <QKeyEvent>
 #include <QElapsedTimer>
-#include <QMediaPlayer>
-#include <QMediaPlaylist>
 
 #include <iostream>
 
@@ -94,13 +92,12 @@ void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visual
 }
 
 int threadedMain(int argc, char *argv[]){
-    QMediaPlayer *music = new QMediaPlayer();
-    music->setSource()
-    music->play();
-
     vector<Visual *> visuals;
     vector<Visual *> newVisuals;
     vector<thread> renderThreads;
+
+    int powerVelocity[2] = {0,3};
+    Power * drop;
 
     QApplication a(argc, argv);
 
@@ -117,6 +114,7 @@ int threadedMain(int argc, char *argv[]){
     spriteList[5] = new Sprite(":/pictures/images/ufo.jpg");
     spriteList[6] = new Sprite(":/pictures/images/screenLaser.jpg");
     spriteList[7] = new Sprite(":/pictures/images/playerProject.jpg");
+    spriteList[8] = new Sprite(":/pictures/images/power.jpg");
 
     QElapsedTimer animationTimer;
     int velocityasdf[2] = {0,0};    // pc should have default values for this
@@ -138,6 +136,7 @@ int threadedMain(int argc, char *argv[]){
     int points = 0, pointMod = 1;
 
     QObject::connect(&frame, &QTimer::timeout,[&](){
+        std::cout << points << std::endl;
         playerLocation[0] = playerCharacter->position[0];
         playerLocation[1] = playerCharacter->position[1];
 
@@ -181,9 +180,11 @@ int threadedMain(int argc, char *argv[]){
                 break;
             case 4:
                 points += 150 * pointMod;
+                drop = new Power(powerVelocity,visuals.at(i)->position,spriteList[8]);
                 visuals.at(i)->derenderer(screenP);
                 delete visuals.at(i);
                 visuals.erase(visuals.begin() + i);
+                newVisuals.emplace_back(drop);
                 break;
             case 5:
                 stillAlive = false;
@@ -195,6 +196,7 @@ int threadedMain(int argc, char *argv[]){
         newVisuals.clear();
 
         screen.overlayBox();
+        scoreShow(screenP,points);
         screen.label->show();
         a.processEvents();
     });

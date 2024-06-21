@@ -8,6 +8,7 @@
 
 #include "define.h"
 
+
 class Sprite {
 public:
     QImage image;
@@ -53,9 +54,22 @@ protected:
 
 class Particle : public Visual {
 public:
+    int renderLayer = 2;
     void render(Screen * screen) override;
     char * shooter;
     Particle(int velocityP[2], int positionP[2], Sprite * spriteP);
+};
+
+class EnemyParticle : public Particle {
+public:
+    int renderLayer = 1;
+    using Particle::Particle;
+};
+
+class Power : public Particle {
+public:
+    int renderLayer = 0;
+    using Particle::Particle;
 };
 
 class Character : public Visual {
@@ -99,3 +113,5 @@ protected:
 private:
     PlayerCharacter* visual;
 };
+
+void scoreShow(Screen * screen, int score);

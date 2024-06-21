@@ -29,29 +29,26 @@ public:
     using NonPlayerCharacter::NonPlayerCharacter;
 };
 
-class EnergyBall : public Particle {
+class EnergyBall : public EnemyParticle {
 public:
     uint32_t size;
-    void render(Screen * screen) override;
-    using Particle::Particle;
+    using EnemyParticle::EnemyParticle;
 };
 
-class EnergySpike : public Particle {
+class EnergySpike : public EnemyParticle {
 public:
     Sprite * rotatedSprite;
-    void render(Screen * screen) override;
     void rotate(double rotation);
-    using Particle::Particle;
+    using EnemyParticle::EnemyParticle;
 };
 
-class ScreenSpike : public Particle {
+class ScreenSpike : public EnemyParticle {
 public:
     Sprite * warningSprite;
     bool warningFired = false;
     int timer = 0;
-    void render(Screen * screen) override;
     void renderer(Screen * screen) override;
-    using Particle::Particle;
+    using EnemyParticle::EnemyParticle;
 };
 
 class Reitu : public NonPlayerCharacter {

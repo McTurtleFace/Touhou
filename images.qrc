@@ -16,5 +16,6 @@
         <file>images/screenLaser.jpg</file>
         <file>images/warning.jpg</file>
         <file>images/playerProject.jpg</file>
+        <file>images/power.jpg</file>
     </qresource>
 </RCC>

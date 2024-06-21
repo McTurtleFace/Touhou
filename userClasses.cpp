@@ -185,38 +185,6 @@ void NierHack::shoot() {
     this->visuals->emplace_back(newSpike2);
 }
 
-void EnergyBall::render(Screen * screen) {
-    for (int i = 0; i < sprite->image.height(); i++){
-        for (int j = 0; j < sprite->image.width(); j++){
-            if (j+position[0]>0 && j+position[0]<WIDTH &&
-                i+position[1]>0 && i+position[1]<HEIGHT){
-                if (sprite->image.pixelColor(j,i).alpha() == 255){
-                    screen->collision[1][j+position[0]][i+position[1]] = true;
-                }
-                else screen->collision[1][j+position[0]][i+position[1]] = false;
-            }
-        }
-    }
-
-    this->renderState = this->collider(screen);
-}
-
-void EnergySpike::render(Screen * screen) {
-    for (int i = 0; i < sprite->image.height(); i++){
-        for (int j = 0; j < sprite->image.width(); j++){
-            if (j+position[0] > 0 && j+position[0] < WIDTH &&
-                i+position[1] > 0 && i+position[1] < HEIGHT) {
-                if (sprite->image.pixelColor(j,i).alpha() == 255){
-                    screen->collision[1][j+position[0]][i+position[1]] = true;
-                }
-                else screen->collision[1][j+position[0]][i+position[1]] = false;
-            }
-        }
-    }
-
-    this->renderState = this->collider(screen);
-}
-
 void EnergySpike::rotate(double rotation){
     rotatedSprite = new Sprite(":/pictures/images/k.jpg");
 
@@ -240,7 +208,8 @@ void ScreenSpike::renderer(Screen * screen) {
     }
     else if (timer > 70) this->renderState = 1;
     else {
-        warningFired = true;
+        if (timer < 65) warningFired = true;
+        else warningFired = false;
 
         while (screen->renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
         screen->renderSemaphore = true;
@@ -255,19 +224,6 @@ void ScreenSpike::renderer(Screen * screen) {
     }
 
     timer++;
-}
-
-void ScreenSpike::render(Screen * screen) {
-    if (warningFired){
-        for (int i = 0; i < HEIGHT; i++){
-            for (int j = 0; j < sprite->image.width(); j++){
-                if (sprite->image.pixelColor(j,i).alpha() == 255){
-                    screen->collision[1][j+position[0]][i] = true;
-                }
-                else screen->collision[1][j+position[0]][i] = false;
-            }
-        }
-    }
 }
 
 extern int playerLocation[2];
