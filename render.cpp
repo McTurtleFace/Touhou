@@ -86,6 +86,18 @@ void Visual::renderer(Screen * screen) {
     screen->renderSemaphore = false;
 }
 
+void Visual::derenderer(Screen * screen){
+    while (screen->renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    screen->renderSemaphore = true;
+    // paint and render
+    QPainter painter(&(screen->image));
+    painter.drawImage(oldPosition[0],oldPosition[1],backgroundSnap);
+    backgroundSnap = screen->image.copy(position[0],position[1],sprite->image.width(),sprite->image.height());
+    backgroundSnap.setAlphaChannel(sprite->invertAlpha());
+    screen->label->setPixmap(QPixmap::fromImage(screen->image));
+    screen->renderSemaphore = false;
+}
+
 void Visual::move(){
     oldPosition[0] = position[0];
     oldPosition[1] = position[1];
@@ -140,9 +152,9 @@ render return values:
 
     unsigned short returnValue = 0;
 
-    if (position[0] + velocity[0] < 0 &&
-        position[0] + velocity[0] >= WIDTH &&
-        position[1] + velocity[1] < 0 &&
+    if (position[0] + velocity[0] < 0 ||
+        position[0] + velocity[0] >= WIDTH ||
+        position[1] + velocity[1] < 0 ||
         position[1] + velocity[1] >= HEIGHT) {
         returnValue = 1;
     }   // needs to account for image height and width
@@ -166,9 +178,9 @@ render return values:
 
     unsigned short returnValue = 0;
 
-    if (position[0] + velocity[0] < 0 &&
-        position[0] + velocity[0] >= WIDTH &&
-        position[1] + velocity[1] < 0 &&
+    if (position[0] + velocity[0] < 0 ||
+        position[0] + velocity[0] >= WIDTH ||
+        position[1] + velocity[1] < 0 ||
         position[1] + velocity[1] >= HEIGHT) {
         returnValue = 1;
     }   // needs to account for image height and width
@@ -178,10 +190,10 @@ render return values:
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
                 if (screen->collision[1][position[0]+j][position[1]+i]) returnValue = 5;
-                else if (screen->collision[1][position[0]+j+1][position[1]+i] ||
-                         screen->collision[1][position[0]+j-1][position[1]+i] ||
-                         screen->collision[1][position[0]+j][position[1]+i+1] ||
-                         screen->collision[1][position[0]+j][position[1]+i-1]) {
+                else if (screen->collision[1][position[0]+j+5][position[1]+i] ||
+                         screen->collision[1][position[0]+j-5][position[1]+i] ||
+                         screen->collision[1][position[0]+j][position[1]+i+5] ||
+                         screen->collision[1][position[0]+j][position[1]+i-5]) {
                     returnValue = 2;
                 }
                 else if (screen->collision[0][j][i]) returnValue = 3;
@@ -228,9 +240,9 @@ void Particle::render(Screen * screen) {
             if (j+position[0]>0 && j+position[0]<WIDTH &&
                 i+position[1]>0 && i+position[1]<HEIGHT){
                 if (sprite->image.pixelColor(j,i).alpha() == 255){
-                    screen->collision[1][j+position[0]][i+position[1]] = true;
+                    screen->collision[2][j+position[0]][i+position[1]] = true;
                 }
-                else screen->collision[1][j+position[0]][i+position[1]] = false;
+                else screen->collision[2][j+position[0]][i+position[1]] = false;
             }
         }
     }
@@ -239,20 +251,11 @@ void Particle::render(Screen * screen) {
 }
 
 void PlayerCharacter::shoot() {
-    int newVelocity1[2] = {1,2};
-    Particle * newBall1 = new Particle(newVelocity1,this->position,this->basicProjectile);
+    int newVelocity[2] = {0,-5};
+    int newPosition[2] = {this->position[0],this->position[1]-35};
+    Particle * newShot = new Particle(newVelocity,newPosition,this->basicProjectile);
 
-    this->visuals->emplace_back(newBall1);
-
-    int newVelocity2[2] = {0,2};
-    Particle * newBall2 = new Particle(newVelocity2,this->position,this->basicProjectile);
-
-    this->visuals->emplace_back(newBall2);
-
-    int newVelocity3[2] = {-1,2};
-    Particle * newBall3 = new Particle(newVelocity3,this->position,this->basicProjectile);
-
-    this->visuals->emplace_back(newBall3);
+    this->visuals->emplace_back(newShot);
 }
 
 void PlayerCharacter::render(Screen * screen) {

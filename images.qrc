@@ -9,7 +9,12 @@
         <file>images/kappa.jpg</file>
         <file>images/ufo.jpg</file>
         <file>images/energyBall.jpg</file>
+        <file>images/energySpike.jpg</file>
         <file>images/boundingBox.jpg</file>
         <file>images/viralHills.jpg</file>
+        <file>images/nierHack.jpg</file>
+        <file>images/screenLaser.jpg</file>
+        <file>images/warning.jpg</file>
+        <file>images/playerProject.jpg</file>
     </qresource>
 </RCC>

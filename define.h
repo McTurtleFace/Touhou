@@ -6,4 +6,4 @@
 #define TICKS 20
 
 // Define maximum sprites possible on screen
-#define NUMSPRITES 10
+#define NUMSPRITES 100

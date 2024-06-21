@@ -14,6 +14,7 @@ class UFO : public NonPlayerCharacter {
 private:
     void shoot() override;
 public:
+    bool shotYet = false;
     void render(Screen * screen) override;
     unsigned short collider(Screen * screen) override;
     using NonPlayerCharacter::NonPlayerCharacter;
@@ -47,7 +48,7 @@ class ScreenSpike : public Particle {
 public:
     Sprite * warningSprite;
     bool warningFired = false;
-    int warningTimer = 0;
+    int timer = 0;
     void render(Screen * screen) override;
     void renderer(Screen * screen) override;
     using Particle::Particle;

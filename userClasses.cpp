@@ -26,7 +26,7 @@ void Kappa::render(Screen * screen) {
 
 void UFO::render(Screen * screen) {
     this->renderer(screen);
-    if (!(this->timeAlive() % 2000)) this->shoot();
+    if (!shotYet) shoot();
     this->renderState = this->collider(screen);
 }
 
@@ -54,9 +54,9 @@ render return values:
 
     unsigned short returnValue = 0;
 
-    if (position[0] + velocity[0] < 0 &&
-        position[0] + velocity[0] >= WIDTH &&
-        position[1] + velocity[1] < 0 &&
+    if (position[0] + velocity[0] < 0 ||
+        position[0] + velocity[0] >= WIDTH ||
+        position[1] + velocity[1] < 0 ||
         position[1] + velocity[1] >= HEIGHT) {
         returnValue = 1;
     }   // needs to account for image height and width
@@ -89,9 +89,9 @@ render return values:
 
     unsigned short returnValue = 0;
 
-    if (position[0] + velocity[0] < 0 &&
-        position[0] + velocity[0] >= WIDTH &&
-        position[1] + velocity[1] < 0 &&
+    if (position[0] < 0 ||
+        position[0] >= WIDTH ||
+        position[1] + velocity[1] < 0 ||
         position[1] + velocity[1] >= HEIGHT) {
         returnValue = 1;
     }   // needs to account for image height and width
@@ -124,9 +124,9 @@ render return values:
 
     unsigned short returnValue = 0;
 
-    if (position[0] + velocity[0] < 0 &&
-        position[0] + velocity[0] >= WIDTH &&
-        position[1] + velocity[1] < 0 &&
+    if (position[0] + velocity[0] < 0 ||
+        position[0] + velocity[0] >= WIDTH ||
+        position[1] + velocity[1] < 0 ||
         position[1] + velocity[1] >= HEIGHT) {
         returnValue = 1;
     }   // needs to account for image height and width
@@ -135,7 +135,9 @@ render return values:
     for (int i = 0; i<sprite->image.height(); i++){
         for (int j = 0; j<sprite->image.width(); j++){
             if (sprite->image.pixelColor(j,i).alpha() == 255) {
-                if (screen->collision[2][j][i]) returnValue = 4;
+                if (screen->collision[2][j][i]) {
+
+                    std::cout << "erm" << std::endl;returnValue = 4;}
             }
         }
     }
@@ -161,21 +163,26 @@ void Kappa::shoot() {
 }
 
 void UFO::shoot() {
-    ScreenSpike * screenSpike = new ScreenSpike(this->position,this->velocity,this->basicProjectile);
-    screenSpike->warningSprite = new Sprite(":/pictures/images/kappa.jpg");
+    int newPosition[2] = {this->position[0],0};
+    int newVelocity[2] = {0,0};
+    ScreenSpike * screenSpike = new ScreenSpike(newVelocity,newPosition,this->basicProjectile);
+    screenSpike->warningSprite = new Sprite(":/pictures/images/warning.jpg");
     this->visuals->emplace_back(screenSpike);
+    this->shotYet = true;
 }
 
 void NierHack::shoot() {
     int newVelocity1[2] = {1,4};
-    EnergySpike * newSpike1 = new EnergySpike(newVelocity1,this->position,this->basicProjectile);
-    newSpike1->rotate(10);
+    int newPosition1[2] = {this->position[0]-10,this->position[1] + 50};
+    EnergySpike * newSpike1 = new EnergySpike(newVelocity1,newPosition1,this->basicProjectile);
+    newSpike1->rotate(340);
 
     this->visuals->emplace_back(newSpike1);
 
     int newVelocity2[2] = {-1,4};
-    EnergySpike * newSpike2 = new EnergySpike(newVelocity2,this->position,this->basicProjectile);
-    newSpike1->rotate(100);
+    int newPosition2[2] = {this->position[0]-20,this->position[1] + 50};
+    EnergySpike * newSpike2 = new EnergySpike(newVelocity2,newPosition2,this->basicProjectile);
+    newSpike2->rotate(20);
 
     this->visuals->emplace_back(newSpike2);
 }
@@ -220,8 +227,7 @@ void EnergySpike::rotate(double rotation){
 }
 
 void ScreenSpike::renderer(Screen * screen) {
-    if (warningTimer<15) {
-        warningTimer++;
+    if (timer<15) {
 
         while (screen->renderSemaphore) std::this_thread::sleep_for(std::chrono::milliseconds(1));
         screen->renderSemaphore = true;
@@ -234,6 +240,7 @@ void ScreenSpike::renderer(Screen * screen) {
         screen->label->setPixmap(QPixmap::fromImage(screen->image));
         screen->renderSemaphore = false;
     }
+    else if (timer > 70) this->renderState = 1;
     else {
         warningFired = true;
 
@@ -248,21 +255,21 @@ void ScreenSpike::renderer(Screen * screen) {
         screen->label->setPixmap(QPixmap::fromImage(screen->image));
         screen->renderSemaphore = false;
     }
+
+    timer++;
 }
 
 void ScreenSpike::render(Screen * screen) {
     if (warningFired){
-        for (int i = 0; i < sprite->image.height(); i++){
+        for (int i = 0; i < HEIGHT; i++){
             for (int j = 0; j < sprite->image.width(); j++){
                 if (sprite->image.pixelColor(j,i).alpha() == 255){
-                    screen->collision[1][j+position[0]][i+position[1]] = true;
+                    screen->collision[1][j+position[0]][i] = true;
                 }
-                else screen->collision[1][j+position[0]][i+position[1]] = false;
+                else screen->collision[1][j+position[0]][i] = false;
             }
         }
     }
-
-    this->renderState = this->collider(screen);
 }
 
 extern int playerLocation[2];

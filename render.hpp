@@ -39,6 +39,7 @@ public:
     int position[2] = {0};
     void nonThreadedRender(Screen * screen) { move();renderer(screen);}
     virtual void render(Screen * screen);
+    virtual void derenderer(Screen * screen);
     virtual ~Visual() {}
 protected:
     int oldPosition[2] = {0};

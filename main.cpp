@@ -58,10 +58,10 @@ void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visual
             int rightPosition[2] = {600,0};
             int leftPosition[2] = {100,0};
 
-            NierHack * nierRight = new NierHack(rightVelocity,rightPosition,spriteList[1],spriteList[2],timer,newVisuals);
+            NierHack * nierRight = new NierHack(rightVelocity,rightPosition,spriteList[3],spriteList[4],timer,newVisuals);
             newVisuals->emplace_back(nierRight);
 
-            NierHack * nierLeft = new NierHack(leftVelocity,leftPosition,spriteList[1],spriteList[2],timer,newVisuals);
+            NierHack * nierLeft = new NierHack(leftVelocity,leftPosition,spriteList[3],spriteList[4],timer,newVisuals);
             newVisuals->emplace_back(nierLeft);
 
             currentStage = 2;
@@ -73,7 +73,7 @@ void spawnLoop(int currentBoss, QElapsedTimer * timer, vector<Visual *> * visual
             int velocity[2] = {0,0};
             int position[2] = {800,300};
 
-            UFO * centerUFO = new UFO(velocity,position,spriteList[1],spriteList[2],timer,newVisuals);
+            UFO * centerUFO = new UFO(velocity,position,spriteList[5],spriteList[6],timer,newVisuals);
             newVisuals->emplace_back(centerUFO);
 
             currentStage = 3;
@@ -106,11 +106,16 @@ int threadedMain(int argc, char *argv[]){
     spriteList[0] = new Sprite(":/pictures/images/reimu.jpg");
     spriteList[1] = new Sprite(":/pictures/images/kappa.jpg");
     spriteList[2] = new Sprite(":/pictures/images/energyBall.jpg");
+    spriteList[3] = new Sprite(":/pictures/images/nierHack.jpg");
+    spriteList[4] = new Sprite(":/pictures/images/energySpike.jpg");
+    spriteList[5] = new Sprite(":/pictures/images/ufo.jpg");
+    spriteList[6] = new Sprite(":/pictures/images/screenLaser.jpg");
+    spriteList[7] = new Sprite(":/pictures/images/playerProject.jpg");
 
     QElapsedTimer animationTimer;
     int velocityasdf[2] = {0,0};    // pc should have default values for this
-    int positionasdf[2] = {300,200};
-    PlayerCharacter * playerCharacter = new PlayerCharacter(velocityasdf,positionasdf,spriteList[0],spriteList[0],&animationTimer,&newVisuals);
+    int positionasdf[2] = {500,800};
+    PlayerCharacter * playerCharacter = new PlayerCharacter(velocityasdf,positionasdf,spriteList[0],spriteList[7],&animationTimer,&newVisuals);
     visuals.emplace_back(playerCharacter);
     KeyEventHandler keyEventHandler(playerCharacter);
     a.installEventFilter(&keyEventHandler);
@@ -118,7 +123,7 @@ int threadedMain(int argc, char *argv[]){
 
     QTimer frame;
     animationTimer.start();
-    frame.setInterval(1000/60);
+    frame.setInterval(1000/90);
 
     bool stillAlive = true;
 
@@ -158,6 +163,7 @@ int threadedMain(int argc, char *argv[]){
         for (int i = visuals.size() - 1; i >= 0; i--) {
             switch (visuals[i]->renderState){
             case 1:
+                visuals.at(i)->derenderer(screenP);
                 delete visuals.at(i);
                 visuals.erase(visuals.begin() + i);
                 break;
@@ -169,6 +175,7 @@ int threadedMain(int argc, char *argv[]){
                 break;
             case 4:
                 points += 150 * pointMod;
+                visuals.at(i)->derenderer(screenP);
                 delete visuals.at(i);
                 visuals.erase(visuals.begin() + i);
                 break;
